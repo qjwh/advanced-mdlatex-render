@@ -2,9 +2,8 @@ name: Daily Content Crawl
 
 on:
   schedule:
-    # 每天 UTC 时间 0:00 运行（北京时间 8:00）
-    - cron: '0 0 * * *'
-  workflow_dispatch: # 允许手动触发
+    - cron: '0 0 * * *'  # UTC时间0:00（北京时间8:00）
+  workflow_dispatch:
 
 jobs:
   crawl-and-update:
@@ -20,12 +19,10 @@ jobs:
         python-version: '3.10'
         
     - name: Install dependencies
-      run: |
-        pip install requests beautifulsoup4
+      run: pip install requests
         
     - name: Run crawler script
-      run: |
-        python .github/workflows/crawler.py
+      run: python .github/scripts/crawler.py
         
     - name: Commit and push changes
       if: success()
