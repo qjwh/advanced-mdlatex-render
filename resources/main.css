@@ -1,0 +1,227 @@
+@font-face { font-family: 'Ubuntu'; src: url('fonts/UbuntuB.ttf'); }
+@font-face { font-family: 'Cascadia Code'; src: url('fonts/Cascadia_Code.ttf'); }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('fonts/HarmonyOS_Sans_SC.ttf'); }
+@font-face { font-family: 'JetBrains Mono'; src: url('fonts/JetBrains_Mono.ttf'); }
+@font-face { font-family: 'Lato'; src: url('fonts/Lato.ttf'); }
+@font-face { font-family: 'Noto Sans SC'; src: url('fonts/Noto_Sans_SC.otf'); }
+
+:root {
+    --body-back: #121212;
+    --body-text: #e0e0e0;
+    --code-border: #1e1e1e;
+    --btn-back: rgba(60, 60, 80, 0.8);
+    --btn-text: #e0e0e0;
+    --btn-border: #444;
+    --btn-hover-back: rgba(77, 166, 255, 0.3);
+    --btn-ok: #4CAF50;
+    --btn-active-back: #888;
+    --linecode-back: #2d2d2d;
+    --linecode-text: rgb(255, 122, 122);
+    --blockquote-text: #bbb;
+    --blockquote-line: #777;
+    --link-text: #4da6ff;
+    --table-border: #444;
+    --table-head-back: #2a2a2a;
+    --linenum-back: #2a2a2a;
+    --linenum-text: #777;
+    --code-back: #22272e;
+    --code-hl-back: #333;
+    --linenum-hl-back: #444;
+    --linenum-hl-text: #fff;
+}
+
+body {
+    font-family: 'Lato', 'Noto Sans SC', sans-serif;
+    background-color: var(--body-back);
+    color: var(--body-text);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    line-height: 1.6;
+}
+.code-block {
+    font-family: 'Cascadia Code', monospace;
+    background-color: var(--code-border);
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+pre {
+    position: relative;
+    background-color: var(--code-border);
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+pre.wrap-code {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.code-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 10;
+}
+pre:hover .code-actions {
+    opacity: 1;
+}
+.code-block-wrapper:hover .code-actions {
+    opacity: 1;
+}
+.copy-btn, .wrap-btn, .wrap-btn-div {
+    background: var(--btn-back);
+    border: 1px solid var(--btn-border);
+    border-radius: 4px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--btn-text);
+    transition: background 0.3s;
+    transition: opacity 0.3s;
+    opacity: 0.6;
+}
+.copy-btn:hover, .wrap-btn:hover, .wrap-btn-div:hover {
+    background: var(--btn-hover-back);
+    opacity: 1;
+}
+.copy-btn.copied {
+    color: var(--btn-ok);
+    opacity: 1;
+}
+.wrap-btn.active, .wrap-btn-div.active {
+    background: var(--btn-active-back);
+    opacity: 1;
+}
+code {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--linecode-text);
+    background-color: var(--linecode-back);
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+blockquote {
+    color: var(--blockquote-text);
+    border-left: 4px solid var(--blockquote-line);
+    padding-left: 15px;
+    margin-left: 5px;
+}
+a {
+    color: var(--link-text);
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    border: 1px solid var(--table-border);
+}
+th, td {
+    border: 1px solid var(--table-border);
+    padding: 0.6em 1em;
+    text-align: left;
+}
+th {
+    background-color: var(--table-head-back);
+    font-weight: bold;
+}
+.katex-inline {
+    background-color: transparent !important;
+    padding: 0 !important;
+    color: inherit !important;
+}
+.code-block-wrapper {
+    position: relative;
+    background-color: var(--code-border);
+    border-radius: 5px;
+    padding: 15px;
+    margin-top: 13px;
+    margin-bottom: 13px;
+    overflow: hidden;
+}
+.code-content {
+    background-color: var(--code-back);
+    border-radius: 5px;
+    flex: 1;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.5;
+    tab-size: 4;
+    display: block;
+    width: 100%;
+    z-index: 0;
+}
+.code-lines {
+    display: inline-block; /* 宽度由内容决定 */
+    min-width: 100%;      /* 至少填满.code-content宽度 */
+}
+.line {
+    position: relative; /* 确保行元素覆盖整行宽度 */
+    display: flex;
+    min-height: 1.5em;
+    width: max-content;  /* 关键：使行宽度自适应内容 */
+    min-width: 100%;     /* 确保至少填满容器宽度 */
+}
+.line-number {
+    position: sticky; /* 添加粘性定位 */
+    left: 0; /* 固定在左侧 */
+    position: sticky;
+    background-color: var(--linenum-back) !important;
+    min-width: 2em;
+    text-align: right;
+    padding-right: 10px;
+    color: var(--linenum-text);
+    user-select: none;
+    min-width: 30px;
+    z-index: 1;
+}
+.line-code {
+    flex: 1;
+    white-space: pre;
+    overflow-x: visible;
+    padding-left: 10px;
+}
+.code-content.wrap-lines .line-code {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.code-content.wrap-lines .line {
+    width: 100% !important;
+}
+.line.highlight .line-number {
+    background-color: var(--linenum-hl-back) !important;
+    color: var(--linenum-hl-text);
+}
+.line.highlight .line-code {
+    background-color: var(--code-hl-back) !important;
+}
+
+code::-webkit-scrollbar, .code-content::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+code::-webkit-scrollbar-track, .code-content::-webkit-scrollbar-track {
+    background: #313244;
+    border-radius: 0 0 5px 5px;
+}
+code::-webkit-scrollbar-thumb, .code-content::-webkit-scrollbar-thumb {
+    background: #585b70;
+    border-radius: 6px;
+    border: 3px solid #313244;
+}
+code::-webkit-scrollbar-thumb:hover, .code-content::-webkit-scrollbar-thumb:hover {
+    background: #6c7086;
+}
+code::-webkit-scrollbar-corner, .code-content::-webkit-scrollbar-corner {
+    background: #1e1e2e;
+}
