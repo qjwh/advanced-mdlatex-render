@@ -3,7 +3,6 @@ import sys
 import requests
 import tempfile
 import shutil
-import mimetypes
 from pathlib import Path
 
 # 配置爬取目标（URL: 输出文件路径）
@@ -29,28 +28,11 @@ def download_file(url, output_path):
     response = requests.get(url, headers=headers, timeout=30)
     response.raise_for_status()
     
-    # 确定文件类型
-    content_type = response.headers.get('Content-Type', '')
-    file_extension = ''
-    
-    # 根据内容类型设置扩展名
-    if 'javascript' in content_type or url.endswith('.js'):
-        file_extension = '.js'
-    elif 'css' in content_type or url.endswith('.css'):
-        file_extension = '.css'
-    elif 'font' in content_type or any(url.endswith(ext) for ext in ['.otf', '.ttf', '.woff', '.woff2']):
-        # 从URL中提取字体扩展名
-        file_extension = Path(url).suffix
-    
-    # 确保输出路径有正确的扩展名
-    if file_extension and not output_path.endswith(file_extension):
-        output_path += file_extension
-    
     # 确保目录存在
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     # 保存文件
-    if 'text' in content_type:
+    if 'text' in response.headers.get('Content-Type', ''):
         # 文本文件（CSS/JS）
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(response.text)
@@ -78,9 +60,9 @@ def crawl_content():
                 temp_path = os.path.join(temp_dir, os.path.basename(output_path))
                 final_path = download_file(url, temp_path)
                 
-                # 保存实际路径（可能添加了扩展名）
-                downloaded_files[url] = (temp_path, final_path)
-                print(f"✅ 成功爬取: {url} -> {final_path}")
+                # 保存实际路径
+                downloaded_files[url] = (temp_path, output_path)
+                print(f"✅ 成功爬取: {url} -> {output_path}")
                 
             except Exception as e:
                 print(f"❌ 爬取失败 [{url}]: {str(e)}")
@@ -101,11 +83,16 @@ def crawl_content():
             return False
             
     finally:
-        # 清理临时目录
-        shutil.rmtree(temp_dir, ignore_ok=True)
+        # 清理临时目录 - 修复错误
+        try:
+            shutil.rmtree(temp_dir)
+        except Exception as e:
+            print(f"⚠️ 清理临时目录时出错: {str(e)}")
 
 if __name__ == "__main__":
-    if crawl_content():
-        sys.exit(0)  # 成功退出
-    else:
-        sys.exit(1)  # 失败退出
+    try:
+        success = crawl_content()
+        sys.exit(0 if success else 1)
+    except Exception as e:
+        print(f"❌ 脚本执行失败: {str(e)}")
+        sys.exit(1)
