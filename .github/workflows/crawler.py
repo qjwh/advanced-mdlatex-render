@@ -52,7 +52,7 @@ def get_file_list(source_url):
             print(f"✅ 最新版本: {version}")
         
         # 构建文件树 API URL
-        tree_api = f"https://data.jsdelivr.com/v1/package/npm/{package_name}@{version}/files"
+        tree_api = f"https://data.jsdelivr.com/v1/package/npm/{package_name}@{version}"
         print(f"🌳 获取文件树: {tree_api}")
         tree_response = requests.get(tree_api)
         tree_response.raise_for_status()
