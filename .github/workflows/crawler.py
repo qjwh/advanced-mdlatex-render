@@ -11,9 +11,7 @@ TARGETS = {
     "https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css": "files/katex.min.css", 
     "https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js": "files/katex.min.js", 
     "https://cdn.jsdelivr.net/npm/katex/dist/contrib/auto-render.min.js": "files/auto-render.min.js", 
-    # "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark-dimmed.min.css": "files/github-dark-dimmed.min.css", 
     "https://cdn.jsdelivr.net/npm/highlight.js/styles/github-dark-dimmed.min.css": "files/github-dark-dimmed.min.css", 
-    # "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js": "files/highlight.min.js", 
     "https://cdn.jsdelivr.net/npm/highlight.js/lib/index.min.js": "files/highlight.min.js", 
     "https://cdn.jsdelivr.net/npm/marked/marked.min.js": "files/marked.min.js", 
     "https://cdn.jsdelivr.net/npm/marked-footnote/dist/index.umd.js": "files/index.umd.js"
