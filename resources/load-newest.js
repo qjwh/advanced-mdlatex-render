@@ -11,8 +11,10 @@ const resources = [
   { type: 'link', url: 'https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css', attrs: { crossorigin: 'anonymous' } },
   { type: 'script', url: 'https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js', attrs: { defer: true, crossorigin: 'anonymous' } },
   { type: 'script', url: 'https://cdn.jsdelivr.net/npm/katex/dist/contrib/auto-render.min.js', attrs: { defer: true, crossorigin: 'anonymous' } },
-  { type: 'link', url: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark-dimmed.min.css' },
-  { type: 'script', url: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js' },
+  // { type: 'link', url: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark-dimmed.min.css' },
+  { type: 'link', url: 'https://cdn.jsdelivr.net/npm/highlight.js/styles/github-dark-dimmed.min.css' },
+  // { type: 'script', url: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js' },
+  { type: 'script', url: 'https://cdn.jsdelivr.net/npm/highlight.js/lib/index.min.js' },
   { type: 'script', url: 'https://cdn.jsdelivr.net/npm/marked/marked.min.js' },
   { type: 'script', url: 'https://cdn.jsdelivr.net/npm/marked-footnote/dist/index.umd.js' },
   
