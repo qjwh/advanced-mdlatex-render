@@ -99,7 +99,7 @@ function gen(markdownContent) {
                 const codeLines = document.createElement('div');
                 codeLines.className = 'code-lines';
                 
-                console.log(lines);
+                // console.log(lines);
                 lines.forEach((lineHtml, index) => {
                     // console.log(lineHtml);
                     // console.log(index);
@@ -114,8 +114,8 @@ function gen(markdownContent) {
                     
                     // console.log(formulaMap);
                     formulaMap.forEach((value, placeholder) => {
-                        console.log(value);
-                        console.log(placeholder);
+                        // console.log(value);
+                        // console.log(placeholder);
                         let rendered = katex.renderToString(value.formula, {
                             throwOnError: false,
                             displayMode: value.displayMode
