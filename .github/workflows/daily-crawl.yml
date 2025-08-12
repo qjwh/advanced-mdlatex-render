@@ -25,7 +25,7 @@ jobs:
         
     - name: Run crawler script
       run: |
-        python .github/scripts/crawler.py
+        python crawler.py
         
     - name: Commit and push changes
       if: success()
