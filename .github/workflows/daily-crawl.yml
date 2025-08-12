@@ -22,7 +22,7 @@ jobs:
       run: pip install requests
         
     - name: Run crawler script
-      run: python .github/scripts/crawler.py
+      run: python .github/workflows/crawler.py
         
     - name: Commit and push changes
       if: success()
