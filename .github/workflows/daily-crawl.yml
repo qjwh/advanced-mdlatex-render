@@ -1,0 +1,110 @@
+name: Daily Content Crawl
+
+on:
+  schedule:
+    # 每天 UTC 时间 0:00 运行（北京时间 8:00）
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  crawl-and-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4
+        
+    - name: Crawl and update content (with error handling)
+      run: |
+        # 定义要爬取的目标和对应的输出文件
+        declare -A TARGETS=(
+          ["https://unpkg.com/feather-icons"]="files/feather.min.js"
+          ["https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"]="files/katex.min.css"
+          ["https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js"]="files/katex.min.js"
+          ["https://cdn.jsdelivr.net/npm/katex/dist/contrib/auto-render.min.js"]="files/auto-render.min.js"
+          ["https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark-dimmed.min.css"]="files/github-dark-dimmed.min.css"
+          ["https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"]="files/highlight.min.js"
+          ["https://cdn.jsdelivr.net/npm/marked/marked.min.js"]="files/marked.min.js"
+          ["https://cdn.jsdelivr.net/npm/marked-footnote/dist/index.umd.js"]="files/index.umd.js"
+        )
+        
+        # 临时目录用于存储新内容
+        TEMP_DIR=$(mktemp -d)
+        
+        # 初始化错误标志
+        ERROR_OCCURRED=0
+        
+        # 爬取每个目标
+        for URL in "${!TARGETS[@]}"; do
+          OUTPUT_FILE=${TARGETS[$URL]}
+          TEMP_FILE="$TEMP_DIR/$(basename $OUTPUT_FILE)"
+          
+          echo "Crawling $URL to $OUTPUT_FILE..."
+          
+          # 使用Python脚本爬取内容（更好的错误处理）
+          if ! python -c "
+import sys
+import requests
+from bs4 import BeautifulSoup
+
+try:
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    response = requests.get('$URL', headers=headers, timeout=30)
+    response.raise_for_status()
+    
+    # 这里可以添加你的解析逻辑
+    soup = BeautifulSoup(response.text, 'html.parser')
+    # 示例：提取body内容
+    content = str(soup.body)
+    
+    with open('$TEMP_FILE', 'w', encoding='utf-8') as f:
+        f.write(content)
+except Exception as e:
+    print(f'Error crawling $URL: {str(e)}', file=sys.stderr)
+    sys.exit(1)
+          "; then
+            echo "::error::Failed to crawl $URL"
+            ERROR_OCCURRED=1
+            continue
+          fi
+        done
+        
+        # 只有所有爬取都成功时才更新文件
+        if [ $ERROR_OCCURRED -eq 0 ]; then
+          echo "All crawls succeeded, updating files..."
+          for OUTPUT_FILE in "${TARGETS[@]}"; do
+            TEMP_FILE="$TEMP_DIR/$(basename $OUTPUT_FILE)"
+            if [ -f "$TEMP_FILE" ]; then
+              mv "$TEMP_FILE" "$OUTPUT_FILE"
+            fi
+          done
+          
+          # 配置Git
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          # 提交更改
+          git add .
+          git commit -m "Auto-update content $(date +'%Y-%m-%d')"
+          git push
+        else
+          echo "::warning::Some crawls failed, keeping existing files"
+        fi
+        
+        # 清理临时目录
+        rm -rf "$TEMP_DIR"
+        
+        # 如果有错误则退出失败
+        if [ $ERROR_OCCURRED -ne 0 ]; then
+          exit 1
+        fi
