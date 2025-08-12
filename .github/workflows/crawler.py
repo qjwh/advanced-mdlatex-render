@@ -84,6 +84,15 @@ def download_file(url, output_path, is_binary=False):
         print(f"❌ 下载失败 [{url}]: {str(e)}")
         return False
 
+def clear_target_directory(target_dir):
+    """完全删除目标目录（而不仅仅是清空内容）"""
+    target_path = Path(target_dir)
+    if target_path.exists():
+        print(f"🗑️ 完全删除目录: {target_dir}")
+        shutil.rmtree(target_path)
+    # 确保父目录存在（为后续创建做准备）
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+
 def update_files(targets, temp_dir):
     """更新单个文件列表"""
     success = True
@@ -102,7 +111,7 @@ def update_files(targets, temp_dir):
     return success, updated_files
 
 def update_directory(source_url, target_dir, temp_dir):
-    """更新整个目录"""
+    """更新整个目录（先删除目标目录再重建）"""
     # 获取文件列表
     file_list = get_file_list(source_url)
     if not file_list:
@@ -111,6 +120,9 @@ def update_directory(source_url, target_dir, temp_dir):
     
     print(f"📋 目录包含 {len(file_list)} 个文件")
     
+    # 完全删除目标目录
+    clear_target_directory(target_dir)
+    
     success = True
     updated_files = {}
     
@@ -118,18 +130,23 @@ def update_directory(source_url, target_dir, temp_dir):
     for filename in file_list:
         file_url = f"{source_url}{filename}"
         temp_path = os.path.join(temp_dir, filename)
-        file_success = download_file(file_url, temp_path, is_binary=True)
+        final_path = os.path.join(target_dir, filename)
+        
+        # 直接下载到最终位置（因为目录已被删除）
+        file_success = download_file(file_url, final_path, is_binary=True)
         
         if file_success:
-            updated_files[filename] = (temp_path, os.path.join(target_dir, filename))
+            updated_files[filename] = (None, final_path)  # 不需要移动，所以temp_path为None
         else:
             success = False
     
     return success, updated_files
 
 def apply_updates(updated_files):
-    """应用所有更新到目标位置"""
+    """应用所有更新到目标位置（修改为跳过已直接下载的文件）"""
     for _, (temp_path, final_path) in updated_files.items():
+        if temp_path is None:  # 目录文件已直接下载到目标位置
+            continue
         # 确保目标目录存在
         os.makedirs(os.path.dirname(final_path), exist_ok=True)
         # 移动文件
