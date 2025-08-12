@@ -23,9 +23,9 @@ TARGETS_DIR = {
 }
 
 def get_file_list(source_url):
-    """获取指定目录下的文件列表"""
+    """获取指定目录下的文件列表（使用新版 API）"""
     try:
-        # 从URL中提取包名和路径
+        # 从 URL 中提取包名和路径
         if "npm/" in source_url:
             package_path = source_url.split("npm/")[1].rstrip('/')
             if "@" in package_path:
@@ -35,20 +35,54 @@ def get_file_list(source_url):
                 package_name = package_path.split("/")[0]
                 version = "latest"
                 path = package_path[len(package_name)+1:]
-            
-            # 构建API URL
-            api_url = f"https://data.jsdelivr.com/v1/package/npm/{package_name}@{version}/resolve?path={path}"
         else:
-            # 处理其他类型的URL（如unpkg）
-            api_url = f"https://data.jsdelivr.com/v1/package{source_url.split('//')[1].split('/', 1)[1]}"
+            # 处理其他类型的 URL（如 unpkg）
+            package_name = source_url.split("//")[1].split("/")[0]
+            path = "/".join(source_url.split("//")[1].split("/")[1:])
+            version = "latest"
         
-        print(f"🔍 获取文件列表: {api_url}")
-        response = requests.get(api_url)
-        response.raise_for_status()
+        # 如果版本是 "latest"，获取实际的最新版本号
+        if version == "latest":
+            tags_api = f"https://data.jsdelivr.com/v1/package/npm/{package_name}"
+            print(f"🔍 获取最新版本: {tags_api}")
+            tags_response = requests.get(tags_api)
+            tags_response.raise_for_status()
+            tags_data = tags_response.json()
+            version = tags_data["tags"]["latest"]
+            print(f"✅ 最新版本: {version}")
         
-        # 解析API响应
-        data = response.json()
-        return [file["name"] for file in data["files"] if not file["isDirectory"]]
+        # 构建文件树 API URL
+        tree_api = f"https://data.jsdelivr.com/v1/package/npm/{package_name}@{version}/files"
+        print(f"🌳 获取文件树: {tree_api}")
+        tree_response = requests.get(tree_api)
+        tree_response.raise_for_status()
+        tree_data = tree_response.json()
+        
+        # 查找目标路径下的文件
+        target_files = []
+        
+        def traverse_files(files, current_path):
+            """递归遍历文件树"""
+            for item in files:
+                item_path = os.path.join(current_path, item["name"])
+                
+                # 如果当前路径匹配目标路径
+                if path and item_path.startswith(path.rstrip('/') + '/') or (not path and current_path == ""):
+                    if item["type"] == "file":
+                        # 获取相对于目标路径的文件名
+                        rel_path = os.path.relpath(item_path, path) if path else item_path
+                        target_files.append(rel_path)
+                
+                # 如果是目录，递归遍历
+                if item["type"] == "directory" and "files" in item:
+                    traverse_files(item["files"], item_path)
+        
+        # 开始遍历文件树
+        traverse_files(tree_data["files"], "")
+        
+        print(f"📋 找到 {len(target_files)} 个文件")
+        return target_files
+        
     except Exception as e:
         print(f"❌ 获取文件列表失败: {str(e)}")
         return []
