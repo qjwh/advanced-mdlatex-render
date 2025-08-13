@@ -108,9 +108,23 @@ def download_file(url, output_path, is_binary=False):
             with open(output_path, 'wb') as f:
                 f.write(response.content)
         else:
+            content = response.text
+            
+            # 特殊处理：为 highlight.js 添加 UMD 包装
+            if "highlight.js/lib/index.min.js" in url:
+                content = (
+                    "(function(f){if(typeof exports==='object'&&typeof module!=='undefined')"
+                    "{module.exports=f()}else if(typeof define==='function'&&define.amd)"
+                    "{define([],f)}else{var g;if(typeof window!=='undefined'){g=window}"
+                    "else if(typeof global!=='undefined'){g=global}else if(typeof self!=='undefined')"
+                    "{g=self}else{g=this}g.hljs = f()}})(function(){"
+                    f"{content}"
+                    "return hljs;});"
+                )
+            
             # 文本文件（CSS/JS）
             with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(response.text)
+                f.write(content)
         
         print(f"✅ 成功下载: {output_path}")
         return True
