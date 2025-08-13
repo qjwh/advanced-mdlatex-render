@@ -102,13 +102,13 @@ def download_file(url, output_path, is_binary=False):
         # 确保目录存在
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
-        content = response.text
-        print(content)
-        
-        # 特殊处理：为 highlight.js 添加 UMD 包装
+        # 处理 highlight.js 的特殊情况
         if "highlight.js/lib/index.min.js" in url:
-            print(f"⬇️ 正在处理: {url}")
-            content = (
+            print(f"🛠️ 特殊处理: {url}")
+            # 以文本方式读取内容
+            content = response.text
+            # 添加 UMD 包装器
+            wrapped_content = (
                 "(function(f){if(typeof exports==='object'&&typeof module!=='undefined')"
                 "{module.exports=f()}else if(typeof define==='function'&&define.amd)"
                 "{define([],f)}else{var g;if(typeof window!=='undefined'){g=window}"
@@ -117,19 +117,23 @@ def download_file(url, output_path, is_binary=False):
                 f"{content}"
                 "return hljs;});"
             )
-            print(f"✅ 处理完成: {url}")
-        
-        # 保存文件
-        if is_binary or not response.headers.get('Content-Type', '').startswith('text'):
-            # 二进制文件（字体等）
-            with open(output_path, 'wb') as f:
-                f.write(content)
-        else:
-            # 文本文件（CSS/JS）
+            # 保存处理后的内容
             with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(content)
+                f.write(wrapped_content)
+            print(f"✅ 处理完成: {output_path}")
+            return True
         
-        print(f"✅ 成功下载: {output_path}")
+        # 处理二进制文件
+        if is_binary or not response.headers.get('Content-Type', '').startswith('text'):
+            with open(output_path, 'wb') as f:
+                f.write(response.content)
+            print(f"✅ 成功下载二进制文件: {output_path}")
+            return True
+        
+        # 处理文本文件
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(response.text)
+        print(f"✅ 成功下载文本文件: {output_path}")
         return True
     except Exception as e:
         print(f"❌ 下载失败 [{url}]: {str(e)}")
