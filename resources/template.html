@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=\"UTF-8\">
+    <title>Markdown/LaTeX Render</title>
+    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.jsdelivr.net/gh/qjwh/advanced-mdlatex-render@main/resources/main.css\">
+</head>
+<body>
+    <div id=\"container\"></div>
+    <script src=\"https://cdn.jsdelivr.net/gh/qjwh/advanced-mdlatex-render@main/resources/load.js\" crossorigin=\"anonymous\"></script>
+    <script>
+        resourcesLoaded.then(() => {
+            autoappend('MDCONTENT');
+        });
+    </script>
+</body>
+</html>
