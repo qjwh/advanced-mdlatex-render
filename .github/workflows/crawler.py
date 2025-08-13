@@ -102,29 +102,28 @@ def download_file(url, output_path, is_binary=False):
         # 确保目录存在
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
+        content = response.text
+        
+        # 特殊处理：为 highlight.js 添加 UMD 包装
+        if "highlight.js/lib/index.min.js" in url:
+            print(f"⬇️ 正在处理: {url}")
+            content = (
+                "(function(f){if(typeof exports==='object'&&typeof module!=='undefined')"
+                "{module.exports=f()}else if(typeof define==='function'&&define.amd)"
+                "{define([],f)}else{var g;if(typeof window!=='undefined'){g=window}"
+                "else if(typeof global!=='undefined'){g=global}else if(typeof self!=='undefined')"
+                "{g=self}else{g=this}g.hljs = f()}})(function(){"
+                f"{content}"
+                "return hljs;});"
+            )
+            print(f"✅ 处理完成: {url}")
+        
         # 保存文件
         if is_binary or not response.headers.get('Content-Type', '').startswith('text'):
-            print(f"✅ 二进制文件处理完成: {url}")
             # 二进制文件（字体等）
             with open(output_path, 'wb') as f:
-                f.write(response.content)
+                f.write(content)
         else:
-            content = response.text
-            
-            # 特殊处理：为 highlight.js 添加 UMD 包装
-            if "highlight.js/lib/index.min.js" in url:
-                print(f"⬇️ 正在处理: {url}")
-                content = (
-                    "(function(f){if(typeof exports==='object'&&typeof module!=='undefined')"
-                    "{module.exports=f()}else if(typeof define==='function'&&define.amd)"
-                    "{define([],f)}else{var g;if(typeof window!=='undefined'){g=window}"
-                    "else if(typeof global!=='undefined'){g=global}else if(typeof self!=='undefined')"
-                    "{g=self}else{g=this}g.hljs = f()}})(function(){"
-                    f"{content}"
-                    "return hljs;});"
-                )
-                print(f"✅ 处理完成: {url}")
-            
             # 文本文件（CSS/JS）
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(content)
