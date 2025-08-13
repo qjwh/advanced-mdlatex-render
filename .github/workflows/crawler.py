@@ -112,6 +112,7 @@ def download_file(url, output_path, is_binary=False):
             
             # 特殊处理：为 highlight.js 添加 UMD 包装
             if "highlight.js/lib/index.min.js" in url:
+                print(f"⬇️ 正在处理: {url}")
                 content = (
                     "(function(f){if(typeof exports==='object'&&typeof module!=='undefined')"
                     "{module.exports=f()}else if(typeof define==='function'&&define.amd)"
@@ -121,6 +122,7 @@ def download_file(url, output_path, is_binary=False):
                     f"{content}"
                     "return hljs;});"
                 )
+                print(f"✅ 处理完成: {url}")
             
             # 文本文件（CSS/JS）
             with open(output_path, 'w', encoding='utf-8') as f:
