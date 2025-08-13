@@ -17,7 +17,7 @@ const resources = [
   { type: 'script', url: 'https://cdn.jsdelivr.net/npm/marked-footnote/dist/index.umd.js' },
   
   // 本地资源（放在最后）
-  { type: 'link', url: 'main.css' },
+  // { type: 'link', url: 'main.css' },
   { type: 'script', url: 'main.js' }
 ];
 
