@@ -103,6 +103,7 @@ def download_file(url, output_path, is_binary=False):
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
         content = response.text
+        print(content)
         
         # 特殊处理：为 highlight.js 添加 UMD 包装
         if "highlight.js/lib/index.min.js" in url:
