@@ -114,7 +114,7 @@ def download_file(url, output_path, is_binary=False):
                 "{define([],f)}else{var g;if(typeof window!=='undefined'){g=window}"
                 "else if(typeof global!=='undefined'){g=global}else if(typeof self!=='undefined')"
                 "{g=self}else{g=this}g.hljs = f()}})(function(){"
-                f"{content}"
+                f"{content}\n"
                 "return hljs;});"
             )
             # 保存处理后的内容
