@@ -93,47 +93,26 @@ def download_file(url, output_path, is_binary=False):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
         }
-        
+
         # 获取文件内容
         print(f"⬇️ 正在下载: {url}")
         response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
-        
+
         # 确保目录存在
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        # 处理 highlight.js 的特殊情况
-        if "highlight.js/lib/index.min.js" in url:
-            print(f"🛠️ 特殊处理: {url}")
-            # 以文本方式读取内容
-            content = response.text
-            # 添加 UMD 包装器
-            wrapped_content = (
-                "(function(f){if(typeof exports==='object'&&typeof module!=='undefined')"
-                "{module.exports=f()}else if(typeof define==='function'&&define.amd)"
-                "{define([],f)}else{var g;if(typeof window!=='undefined'){g=window}"
-                "else if(typeof global!=='undefined'){g=global}else if(typeof self!=='undefined')"
-                "{g=self}else{g=this}g.hljs = f()}})(function(){"
-                f"{content}\n"
-                "return hljs;});"
-            )
-            # 保存处理后的内容
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(wrapped_content)
-            print(f"✅ 处理完成: {output_path}")
-            return True
-        
-        # 处理二进制文件
+
+        # 保存文件
         if is_binary or not response.headers.get('Content-Type', '').startswith('text'):
+            # 二进制文件（字体等）
             with open(output_path, 'wb') as f:
                 f.write(response.content)
-            print(f"✅ 成功下载二进制文件: {output_path}")
-            return True
-        
-        # 处理文本文件
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(response.text)
-        print(f"✅ 成功下载文本文件: {output_path}")
+        else:
+            # 文本文件（CSS/JS）
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(response.text)
+
+        print(f"✅ 成功下载: {output_path}")
         return True
     except Exception as e:
         print(f"❌ 下载失败 [{url}]: {str(e)}")
