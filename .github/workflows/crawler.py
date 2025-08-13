@@ -104,6 +104,7 @@ def download_file(url, output_path, is_binary=False):
         
         # 保存文件
         if is_binary or not response.headers.get('Content-Type', '').startswith('text'):
+            print(f"✅ 二进制文件处理完成: {url}")
             # 二进制文件（字体等）
             with open(output_path, 'wb') as f:
                 f.write(response.content)
